@@ -34,9 +34,23 @@
 
   <header class="border-bottom py-3 mb-4">
     <div class="container d-flex justify-content-center flex-wrap">
-      <h1 class="fs-4 mb-3 mb-lg-0 me-lg-auto text-dark">Contact Manager</h1>
+      <h1 class="fs-4 mb-3 mb-lg-0 me-lg-auto text-dark logo"><button
+          type="button"
+          class="bg-transparent border-0"
+        >Contact Manager</button></h1>
 
-      <form class="d-flex w-75 mb-3 mb-lg-0  search-form">
+      <form class="d-flex w-75 mb-3 mb-lg-0  search-form gap-2">
+        <div class="d-flex justify-content-center align-items-center gap-1">
+          <label
+            for="caseSensitive"
+            class="fs-6 text-nowrap"
+          >Case Sensitive</label>
+          <input
+            type="checkbox"
+            id="caseSensitive"
+            name="caseSensitive"
+          >
+        </div>
         <input
           type="text"
           class="form-control"

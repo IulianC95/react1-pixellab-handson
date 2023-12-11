@@ -11,9 +11,18 @@ searchForm.addEventListener('submit', (event) => {
   event.preventDefault();
   const form = event.currentTarget;
   const queryInput = form.q;
-  const searchValue = queryInput.value;
+  const caseSensitiveChebox = form.caseSensitive;
+  let searchValue = queryInput.value;
 
-  const contacts = findContact(searchValue);
+  // Make sure search works for three letter and up
+  if (searchValue.length < 3) {
+    addMessage(
+      renderMessage('Search term must be at least 3 characters long.'),
+    );
+    return;
+  }
+
+  const contacts = findContact(searchValue, caseSensitiveChebox.checked);
   const contactsCount = contacts.length;
 
   if (contactsCount <= 0) {

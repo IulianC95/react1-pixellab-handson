@@ -1,7 +1,14 @@
 import { addMessage, clearMessages } from './notificationBar.js';
-import { addContact, deleteContact, editContact, getContact } from './query.js';
+import {
+  addContact,
+  addPet,
+  deleteContact,
+  editContact,
+  getContact,
+} from './query.js';
 import renderMessage from './message.js';
 import { render as renderEditContact } from './editContactForm.js';
+import { render as renderAddPetForm } from './addPetForm.js';
 
 const stage = document.querySelector('.stage');
 
@@ -122,7 +129,9 @@ stage.addEventListener('submit', (event) => {
   editContact(contact);
 
   stage.innerHTML = '';
-  addMessage(renderMessage(`Contact ${name.value} ${surname.value} saved.`));
+  addMessage(
+    renderMessage(`Contact ${name.value} ${surname.value} saved.`, 'success'),
+  );
 });
 
 // add pet button
@@ -135,17 +144,58 @@ stage.addEventListener('click', (event) => {
   ) {
     return;
   }
-  {
-    const addPetButton = target;
-    const ownerContainer = addPetButton.closest('.contact');
-    const contactId = ownerContainer.dataset.contactId;
 
-    clearMessages();
-    stage.innerHTML = '';
+  const addPetButton = target;
+  const ownerContainer = addPetButton.closest('.contact');
+  const contactId = ownerContainer.dataset.contactId;
 
-    // for next time
-    stage.append('add pet');
+  clearMessages();
+  stage.innerHTML = '';
+
+  stage.append(renderAddPetForm(contactId));
+});
+
+//add pet submit
+stage.addEventListener('submit', (event) => {
+  const { target } = event;
+
+  if (
+    target.nodeName !== 'FORM' ||
+    !target.classList.contains('add-pet-form')
+  ) {
+    return;
   }
+
+  event.preventDefault();
+  const form = target;
+  // dom elements:
+  const { age, name, species, contactId } = form;
+  const pet = {
+    age: age.value,
+    name: name.value,
+    species: species.value,
+    // hack
+    id: Number(Date.now().toString().slice(-6)),
+  };
+
+  addPet(contactId.value, pet);
+  const { name: contactName, surname: contactSurname } = getContact(
+    contactId.value,
+  );
+
+  stage.innerHTML = '';
+  addMessage(
+    renderMessage(
+      `Pet ${name.value} added to contact ${contactName} ${contactSurname}.`,
+      'success',
+    ),
+  );
+});
+
+// Reset stage on logo click (<button type=“button> in h1)
+const logo = document.querySelector('.logo');
+logo.addEventListener('click', () => {
+  stage.innerHTML = '';
 });
 
 export default stage;

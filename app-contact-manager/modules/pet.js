@@ -12,14 +12,15 @@ export const render = (pet) => {
     <li>Species: ${species}</li>
   </ul>
   <footer class="mt-2">
+  <button type="button"
+  title="Edit"
+  class="btn btn-secondary edit-pet-button"
+>Edit</button>
     <button type="button"
       title="Delete"
-      class="btn btn-secondary delete-pet-button"
+      class="btn btn-danger delete-pet-button"
     >Delete</button>
-    <button type="button"
-      title="Edit"
-      class="btn btn-secondary edit-pet-button"
-    >Edit</button>
+
   </footer>
 `;
 
