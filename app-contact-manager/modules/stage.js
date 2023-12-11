@@ -3,12 +3,16 @@ import {
   addContact,
   addPet,
   deleteContact,
+  deletePet,
   editContact,
+  editPet,
   getContact,
+  getPet,
 } from './query.js';
 import renderMessage from './message.js';
 import { render as renderEditContact } from './editContactForm.js';
 import { render as renderAddPetForm } from './addPetForm.js';
+import { renderEditPetForm } from './editPetForm.js';
 
 const stage = document.querySelector('.stage');
 
@@ -27,9 +31,48 @@ stage.addEventListener('click', (event) => {
   const parent = button.parentElement;
   const contactId = parent.dataset.contactId;
 
+  // Add a confirm box (browser) to the delete friend
+
+  const isConfirmed = confirm('Are you sure you want to delete this contact?');
+  if (!isConfirmed) {
+    return;
+  }
+
   deleteContact(contactId);
   parent.remove();
   addMessage(renderMessage('Contact removed', 'danger'));
+});
+
+// delete pet
+stage.addEventListener('click', (event) => {
+  const { target } = event;
+
+  if (!target.classList.contains('delete-pet-button')) {
+    return;
+  }
+
+  const petContainer = target.closest('.pet');
+  const petId = petContainer ? parseInt(petContainer.dataset.petId) : null;
+  const contactContainer = petContainer
+    ? petContainer.closest('.contact')
+    : null;
+  const contactId = contactContainer
+    ? parseInt(contactContainer.dataset.contactId)
+    : null;
+
+  if (!petId || !contactId) {
+    console.error('Missing petId or contactId.');
+    return;
+  }
+
+  const isConfirmed = confirm('Are you sure you want to delete this pet?');
+  if (!isConfirmed) {
+    return;
+  }
+
+  deletePet(contactId, petId);
+  petContainer.remove();
+  addMessage(renderMessage('Pet removed', 'danger'));
 });
 
 // add contact form
@@ -190,6 +233,58 @@ stage.addEventListener('submit', (event) => {
       'success',
     ),
   );
+});
+
+// edit pet
+
+stage.addEventListener('click', (event) => {
+  if (event.target.classList.contains('edit-pet-button')) {
+    const button = event.target;
+    const petId = button.dataset.petId;
+
+    const contactContainer = button.closest('.contact');
+    const contactId = contactContainer
+      ? contactContainer.dataset.contactId
+      : null;
+
+    if (!petId || !contactId) {
+      console.error('Missing petId or contactId:', petId, contactId);
+      return;
+    }
+
+    const editPetForm = renderEditPetForm(contactId, petId);
+    if (editPetForm) {
+      stage.innerHTML = '';
+      stage.appendChild(editPetForm);
+    }
+  }
+});
+
+// save edit pet
+
+stage.addEventListener('submit', (event) => {
+  event.preventDefault();
+  const { target } = event;
+
+  if (target.classList.contains('edit-pet-form')) {
+    const form = target;
+
+    const updatedPet = {
+      id: Number(form.petId.value),
+      name: form.name.value,
+      species: form.species.value,
+      age: Number(form.age.value),
+    };
+
+    const contactId = Number(form.contactId.value);
+
+    editPet(contactId, updatedPet);
+
+    stage.innerHTML = '';
+    addMessage(
+      renderMessage(`Pet ${updatedPet.name} updated successfully`, 'success'),
+    );
+  }
 });
 
 // Reset stage on logo click (<button type=“button> in h1)
