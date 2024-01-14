@@ -431,6 +431,10 @@ a {
   color: #2b2b2b;
 }
 
+.header-counter {
+  display: inline-flex;
+}
+
 .header-search a {
   color: #2b2b2b;
 }
@@ -623,26 +627,26 @@ aside img {
   display: inline-block;
 }
 
-.footer-sign-up-newsletter form {
+.home-newsletter form {
   display: flex;
   flex-direction: column;
 }
-.footer-sign-up-newsletter form label {
+.home-newsletter form label {
   margin-bottom: 10px;
 }
 
-.footer-sign-up-newsletter form input {
+.home-newsletter form input {
   margin: 2.5px 0;
   border-color: white;
 }
-.footer-sign-up-newsletter button {
+.home-newsletter button {
   margin: 10px 5px;
   padding: 5px 0;
   font-family: 'Roboto';
   font-weight: normal;
 }
 
-.footer-sign-up-newsletter button {
+.home-newsletter button {
   max-width: 100px;
   margin-left: 0;
 }
@@ -663,3 +667,20 @@ aside img {
 }
 /* footer-ul nu e aliniat ca in design.
 Il voi schimba daca trebuie, dar m-am distrat putin aranjanu-le */
+
+/* spinner animation */
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.fas.fa-spinner {
+  animation: spin 1s linear infinite;
+}
+
+/* / spinner animation */

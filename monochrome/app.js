@@ -40,18 +40,31 @@ const AddToCartButton = ({ productId }) => {
     }, Math.floor(Math.random() * 3000));
   };
 
-  return (
-    <button
-      className={`product-control ${added ? 'active' : ''}`}
-      type="button"
-      title={added === true ? 'Remove from Cart' : 'Add to Cart'}
-      onClick={onClick}
-      disabled={busy}
-    >
-      {added === true ? `PID: ${productId} in cart` : 'Add to Cart'}
-      {busy === true ? <i className="fas fa-spinner"></i> : null}
-    </button>
-  );
+  if (added === false) {
+    return (
+      <i
+        className={`far fa-plus-square ${added ? 'active' : ''}`}
+        type="button"
+        title={added === true ? 'Remove from Cart' : 'Add to Cart'}
+        onClick={onClick}
+        disabled={busy}
+      >
+        {busy === true ? <i className="fas fa-spinner"></i> : null}
+      </i>
+    );
+  } else {
+    return (
+      <i
+        className={`far fa-minus-square ${added ? 'active' : ''}`}
+        type="button"
+        title={added === true ? 'Remove from Cart' : 'Add to Cart'}
+        onClick={onClick}
+        disabled={busy}
+      >
+        {busy === true ? <i className="fas fa-spinner"></i> : null}
+      </i>
+    );
+  }
 };
 
 const AddToWishlistButton = ({ productId }) => {
@@ -84,18 +97,31 @@ const AddToWishlistButton = ({ productId }) => {
     }, Math.floor(Math.random() * (1000 * 3)));
   };
 
-  return (
-    <button
-      className={`product-control ${added ? 'active' : ''}`}
-      type="button"
-      title={added === true ? 'Remove from Wishlist' : 'Add to Wishlist'}
-      onClick={onClick}
-      disabled={busy}
-    >
-      {added === true ? `PID: ${productId} in wl` : 'Add to Wishlist'}
-      {busy === true ? <i className="fas fa-spinner"></i> : null}
-    </button>
-  );
+  if (added === false) {
+    return (
+      <i
+        className={`far fa-heart ${added ? 'active' : ''}`}
+        type="button"
+        title={added === true ? 'Remove from Wishlist' : 'Add to Wishlist'}
+        onClick={onClick}
+        disabled={busy}
+      >
+        {busy === true ? <i className="fas fa-spinner"></i> : null}
+      </i>
+    );
+  } else {
+    return (
+      <i
+        className={`fas fa-heart ${added ? 'active' : ''}`}
+        type="button"
+        title={added === true ? 'Remove from Wishlist' : 'Add to Wishlist'}
+        onClick={onClick}
+        disabled={busy}
+      >
+        {busy === true ? <i className="fas fa-spinner"></i> : null}
+      </i>
+    );
+  }
 };
 
 const ProductControls = (props) => {
@@ -267,23 +293,28 @@ ReactDOM.createRoot(headerCounters).render(<HeaderCounters></HeaderCounters>);
 const validateEmail = (email) => {
   const re =
     /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-
   return re.test(email);
 };
 
-// newsletter form
 const NewsletterForm = () => {
   const [state, setState] = React.useState({
     email: '',
     formMessage: '',
     busy: false,
     successMessage: '',
+    subscriptions: 0,
+    rateLimitMessage: '',
   });
-  const { email, formMessage, busy, successMessage } = state;
+  const {
+    email,
+    formMessage,
+    busy,
+    successMessage,
+    subscriptions,
+    rateLimitMessage,
+  } = state;
 
-  // controlled input
   const onChange = (event) => {
-    // just target recommended
     setState({
       ...state,
       email: event.target.value,
@@ -293,42 +324,56 @@ const NewsletterForm = () => {
 
   const send = (event) => {
     event.preventDefault();
-    // event.target['field-newsletter'].value
+    setState((prevState) => ({
+      ...prevState,
+      successMessage: '',
+      rateLimitMessage: '',
+    }));
 
-    if (busy) {
+    if (busy || subscriptions >= 3) {
+      setState((prevState) => ({
+        ...prevState,
+        rateLimitMessage: 'Too many subscriptions',
+      }));
       return;
     }
 
     if (!validateEmail(email)) {
-      setState({
-        ...state,
+      setState((prevState) => ({
+        ...prevState,
         formMessage: 'Please use a valid email',
-      });
-
+      }));
       return;
     }
 
-    setState({
-      ...state,
+    setState((prevState) => ({
+      ...prevState,
       busy: true,
       formMessage: '',
-    });
+    }));
 
-    // simulate ajax
     setTimeout(() => {
-      setState({
-        ...state,
-        busy: false,
-        email: '',
-        successMessage: `Emailul ${email} a fost inscris.`,
+      setState((prevState) => {
+        const newSubscriptions = prevState.subscriptions + 1;
+        return {
+          ...prevState,
+          busy: false,
+          email: '',
+          successMessage: `Emailul ${email} a fost inscris.`,
+          subscriptions: newSubscriptions,
+        };
       });
 
-      //callback hell
       setTimeout(() => {
-        setState({
-          ...state,
-          email: '',
-          successMessage: '',
+        setState((prevState) => {
+          if (prevState.subscriptions < 4) {
+            return {
+              ...prevState,
+              email: '',
+              successMessage: '',
+            };
+          }
+          return prevState;
         });
       }, 1200);
     }, 1200);
@@ -338,25 +383,22 @@ const NewsletterForm = () => {
     return <div className="container">{successMessage}</div>;
   }
 
+  if (rateLimitMessage.length > 0) {
+    return <div className="container">{rateLimitMessage}</div>;
+  }
+
   return (
     <form className="form-newsletter container" onSubmit={send}>
-      <label htmlFor="field-newsletter">
-        Subscribe to our <span>newsletter</span>
-      </label>
-
+      <label htmlFor="field-newsletter">sign up for our newsletter</label>
       <input
+        onChange={onChange}
         type="text"
         name="field-newsletter"
         id="field-newsletter"
-        placeholder="enter your email address to receive the latest news!"
-        value={email}
-        onChange={onChange}
-      ></input>
-
-      <button title="Subscribe" type="submit" disabled={busy}>
+      />
+      <button disabled={busy} title="Subscribe" type="submit">
         {busy ? '...loading' : 'Subscribe'}
       </button>
-
       <div className="form-message">{formMessage}</div>
     </form>
   );
